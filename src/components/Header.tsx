@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
-import { useAuthStore } from '../store/useAuthStore';
 import { useLogout } from '../hooks';
+import { useAuthStore } from '../store/useAuthStore';
 
 const Header = () => {
 	const { user } = useAuthStore();
@@ -14,7 +14,7 @@ const Header = () => {
 			<div className="flex items-center gap-4">
 				{user && <span>Hi, {user.name}</span>}
 				<button onClick={logout} className="bg-white text-blue-600 px-3 py-1 rounded hover:bg-gray-100">
-					Logout
+					Log out
 				</button>
 			</div>
 		</header>

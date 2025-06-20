@@ -8,11 +8,17 @@ export const useAuthStore = create<AuthState & AuthActions>()(
 			(set) => ({
 				user: null,
 				token: null,
-				setAuth: (user, token) => set({ user, token }, false, 'setAuth'),
-				logout: () => set({ user: null, token: null }, false, 'logout'),
+				initialized: false,
+				setAuth: (user, token) => set({ user, token, initialized: true }, false, 'setAuth'),
+				logout: () => set({ user: null, token: null, initialized: true }, false, 'logout'),
 			}),
 			{
 				name: 'auth-storage',
+				onRehydrateStorage: () => (state?: AuthState & AuthActions) => {
+					if (state) {
+						state.initialized = true;
+					}
+				},
 			}
 		),
 		{ name: 'AuthStore' }

@@ -1,12 +1,13 @@
 // types/auth.ts
 export interface User {
 	id: number;
-	email: string;
 	name: string;
+	email: string;
 }
 
 export interface AuthState {
 	user: User | null;
+	initialized: boolean;
 	token: string | null;
 }
 
