@@ -1,4 +1,3 @@
-// src/api/rest-api/property.ts
 import api from '../axios';
 import type { Property } from '../../types/property';
 import type { CreatePropertyFormData } from '../../utils/index';
@@ -20,5 +19,10 @@ export const getPropertyById = async (id: number): Promise<Property> => {
 
 export const updateProperty = async (id: number, data: CreatePropertyFormData): Promise<Property> => {
 	const response = await api.patch(`/properties/${id}`, data);
+	return response.data;
+};
+
+export const createProperty = async (data: CreatePropertyFormData): Promise<Property> => {
+	const response = await api.post('/properties', data);
 	return response.data;
 };

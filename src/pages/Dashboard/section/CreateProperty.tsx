@@ -1,62 +1,33 @@
-import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useNavigate, useParams, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 import { propertySchema, type CreatePropertyFormData } from '../../../utils';
-import { getPropertyById, updateProperty } from '../../../api/rest-api';
+import { createProperty } from '../../../api/rest-api';
 import { useToast, useAsyncRequest } from '../../../hooks';
 import { Header, InputField, LoadingButton, FormError } from '../../../components';
 
 const formClass =
 	'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-lg space-y-6';
 
-const EditPropertyPage = () => {
-	const { id } = useParams();
+const CreatePropertyPage = () => {
 	const toast = useToast();
 	const navigate = useNavigate();
 
 	const {
 		register,
 		handleSubmit,
-		setValue,
 		formState: { errors },
 	} = useForm<CreatePropertyFormData>({
 		resolver: zodResolver(propertySchema),
 	});
 
-	const { execute: fetchProperty, error: fetchError } = useAsyncRequest(getPropertyById);
-	const { execute: submitUpdate, loading, error: updateError } = useAsyncRequest(updateProperty);
-
-	const propertyId = Number(id);
-
-	useEffect(() => {
-		if (!propertyId || isNaN(propertyId)) {
-			toast.error('Invalid property ID');
-			navigate('/dashboard');
-			return;
-		}
-
-		const loadProperty = async () => {
-			try {
-				const property = await fetchProperty(propertyId);
-				setValue('title', property.title);
-				setValue('description', property.description);
-				setValue('price', property.price);
-				setValue('location', property.location);
-			} catch {
-				toast.error('Failed to load property');
-				navigate('/dashboard');
-			}
-		};
-
-		loadProperty();
-	}, [propertyId, fetchProperty, setValue, navigate]);
+	const { execute: submitCreate, loading, error } = useAsyncRequest(createProperty);
 
 	const onSubmit = async (data: CreatePropertyFormData) => {
 		try {
-			await submitUpdate(propertyId, data);
-			toast.success('Property updated');
+			await submitCreate(data);
+			toast.success('Property created successfully!');
 			navigate('/dashboard');
 		} catch {
 			// error handled inside hook
@@ -68,10 +39,9 @@ const EditPropertyPage = () => {
 			<Header />
 			<div className="flex items-start justify-center pt-20 px-4">
 				<form onSubmit={handleSubmit(onSubmit)} className={formClass}>
-					<h2 className="text-2xl font-bold text-center">Edit Property 🛠️</h2>
+					<h2 className="text-2xl font-bold text-center">Add New Property 🏠</h2>
 
-					{fetchError && <p className="text-center text-red-500 mb-4">Failed to load property. Please try again.</p>}
-					{updateError && <FormError message={updateError} />}
+					{error && <FormError message={error} />}
 
 					<InputField label="Title" type="text" {...register('title')} error={errors.title} />
 					<InputField label="Description" type="text" {...register('description')} error={errors.description} />
@@ -80,14 +50,15 @@ const EditPropertyPage = () => {
 
 					<div className="flex justify-between gap-4">
 						<LoadingButton type="submit" loading={loading}>
-							Update Property
+							Create Property
 						</LoadingButton>
-						<Link
-							to="/dashboard"
+						<button
+							type="button"
+							onClick={() => navigate('/dashboard')}
 							className="px-4 py-2 rounded border text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700"
 						>
 							Cancel
-						</Link>
+						</button>
 					</div>
 				</form>
 			</div>
@@ -95,4 +66,4 @@ const EditPropertyPage = () => {
 	);
 };
 
-export default EditPropertyPage;
+export default CreatePropertyPage;
