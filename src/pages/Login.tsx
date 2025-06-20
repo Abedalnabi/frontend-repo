@@ -37,7 +37,6 @@ const LoginPage = () => {
 
 			toast.success('Login successful! Redirecting...');
 			setTimeout(() => navigate('/dashboard'), 2000);
-			// TODO: Handle error
 		},
 		[loginUser, navigate, setAuth, toast]
 	);

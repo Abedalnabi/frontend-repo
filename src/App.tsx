@@ -6,7 +6,7 @@ import DashboardPage from './pages/Dashboard/Dashboard';
 import { ProtectedRoute } from './components';
 import { useAutoLogin } from './hooks';
 // import CreatePropertyPage from './pages/Create';
-// import EditPropertyPage from './pages/Edit';
+import EditPropertyPage from './pages/Dashboard/section/EditProperty';
 
 function App() {
 	useAutoLogin();
@@ -25,7 +25,14 @@ function App() {
 					}
 				/>
 				{/* <Route path="/create" element={<CreatePropertyPage />} /> */}
-				{/* <Route path="/edit/:id" element={<EditPropertyPage />} /> */}
+				<Route
+					path="/edit/:id"
+					element={
+						<ProtectedRoute>
+							<EditPropertyPage />
+						</ProtectedRoute>
+					}
+				/>
 			</Routes>
 			{/* Footer */}
 		</Router>
