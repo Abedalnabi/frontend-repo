@@ -1,24 +1,24 @@
 // src/pages/Login.tsx
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { loginSchema, type LoginFormData } from '../utils/index';
+import { loginSchema, type LoginFormData } from '../utils';
 import { login } from '../api/rest-api';
 import { useAuthStore } from '../store/useAuthStore';
 import { setAuthToken } from '../api/axios';
 import { useNavigate, Link } from 'react-router-dom';
-import { useState, useCallback } from 'react';
+import { useToast, useAsyncRequest } from '../hooks';
 
+import { useCallback } from 'react';
 import { FormError, LoadingButton, InputField, AppWrapper } from '../components';
-
-import { useToast } from '../hooks';
-
-import type { AxiosError } from 'axios';
 
 const formClass =
 	'bg-white dark:bg-gray-800 text-gray-800 dark:text-gray-100 p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6';
 
 const LoginPage = () => {
 	const toast = useToast();
+	const setAuth = useAuthStore((state) => state.setAuth);
+	const navigate = useNavigate();
+
 	const {
 		register,
 		handleSubmit,
@@ -27,32 +27,19 @@ const LoginPage = () => {
 		resolver: zodResolver(loginSchema),
 	});
 
-	const setAuth = useAuthStore((state) => state.setAuth);
-	const navigate = useNavigate();
-	const [loading, setLoading] = useState(false);
-	const [errorMsg, setErrorMsg] = useState('');
+	const { execute: loginUser, loading, error } = useAsyncRequest(login);
 
 	const onSubmit = useCallback(
 		async (data: LoginFormData) => {
-			try {
-				setLoading(true);
-				const response = await login(data);
-				setAuth(response.user, response.access_token);
-				setAuthToken(response.access_token);
+			const response = await loginUser(data);
+			setAuth(response.user, response.access_token);
+			setAuthToken(response.access_token);
 
-				toast.success('Login successful! Redirecting...');
-
-				setTimeout(() => {
-					navigate('/dashboard');
-				}, 2000);
-			} catch (error) {
-				const err = error as AxiosError<{ message: string }>;
-				setErrorMsg(err.response?.data?.message ?? 'Registration failed');
-			} finally {
-				setLoading(false);
-			}
+			toast.success('Login successful! Redirecting...');
+			setTimeout(() => navigate('/dashboard'), 2000);
+			// TODO: Handle error
 		},
-		[navigate, setAuth, toast]
+		[loginUser, navigate, setAuth, toast]
 	);
 
 	return (
@@ -63,7 +50,7 @@ const LoginPage = () => {
 					<p className="text-sm text-gray-500 dark:text-gray-400">Login to your account</p>
 				</div>
 
-				{errorMsg && <FormError message={errorMsg} />}
+				{error && <FormError message={error} />}
 
 				<InputField label="Email" type="email" {...register('email')} error={errors.email} />
 				<InputField label="Password" type="password" {...register('password')} error={errors.password} />
