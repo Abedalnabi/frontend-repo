@@ -20,7 +20,7 @@ npm run dev
 
 2. **Add .env File (Example)**
 
-Create a file named .env in the root folder and paste the following:
+Create a file named .env in the root folder and paste the following: You shold run the server on port 3000
 
 ```bash
 
